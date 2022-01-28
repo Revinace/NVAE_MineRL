@@ -54,7 +54,8 @@ Run the following commands to generate the Minecraft images and store them in an
 python scripts/create_custom_lmdb_from_minerl.py --lmdb_path datasets/minecraft_lmdb --train_size 15000 --test_size 5000
 ```
 The LMDB datasets are created at `datasets/minecraft`.
-**Important info for Windows user**: the dataset is only on Linux able to shrink after processing, so for windows the `mapsize` in this case 10GB will be used.
+**Important info for Windows user**: the dataset is only on Linux able to shrink after processing,
+so for windows the `mapsize` in this case 10GB will be used even if the size of the dataset is only 10MB.
 
 
 ## Running the training of NVAE for Minecraft
