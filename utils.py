@@ -298,29 +298,15 @@ def one_hot(indices, depth, dim):
 
 
 def num_output(dataset):
-    if dataset in {'mnist', 'omniglot'}:
-        return 28 * 28
-    elif dataset == 'cifar10':
-        return 3 * 32 * 32
-    elif dataset.startswith('celeba') or dataset.startswith('imagenet') or dataset.startswith('lsun'):
-        size = int(dataset.split('_')[-1])
-        return 3 * size * size
-    elif dataset == 'ffhq':
-        return 3 * 256 * 256
+    if dataset == 'minecraft':
+        return 3 * 64 * 64
     else:
         raise NotImplementedError
 
 
 def get_input_size(dataset):
-    if dataset in {'mnist', 'omniglot'}:
-        return 32
-    elif dataset == 'cifar10':
-        return 32
-    elif dataset.startswith('celeba') or dataset.startswith('imagenet') or dataset.startswith('lsun'):
-        size = int(dataset.split('_')[-1])
-        return size
-    elif dataset == 'ffhq':
-        return 256
+    if dataset == 'minecraft':
+        return 64
     else:
         raise NotImplementedError
 

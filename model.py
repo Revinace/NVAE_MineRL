@@ -104,6 +104,7 @@ class PairedCellAR(nn.Module):
 class AutoEncoder(nn.Module):
     def __init__(self, args, writer, arch_instance):
         super(AutoEncoder, self).__init__()
+        self.return_feature_layers = args.return_feature_layers
         self.writer = writer
         self.arch_instance = arch_instance
         self.dataset = args.dataset
@@ -337,11 +338,15 @@ class AutoEncoder(nn.Module):
                              Conv2D(C_in, C_out, 3, padding=1, bias=True))
 
     def forward(self, x):
+        latent = None
+
         s = self.stem(2 * x - 1.0)
 
+        pre_layers = []
         # perform pre-processing
         for cell in self.pre_process:
             s = cell(s)
+            pre_layers.append(s)
 
         # run the main encoder tower
         combiner_cells_enc = []
@@ -352,6 +357,7 @@ class AutoEncoder(nn.Module):
                 combiner_cells_s.append(s)
             else:
                 s = cell(s)
+                pre_layers.append(s)
 
         # reverse combiner cells and their input for decoder
         combiner_cells_enc.reverse()
@@ -361,6 +367,7 @@ class AutoEncoder(nn.Module):
         ftr = self.enc0(s)                            # this reduces the channel dimension
         param0 = self.enc_sampler[idx_dec](ftr)
         mu_q, log_sig_q = torch.chunk(param0, 2, dim=1)
+        latent = torch.cat((mu_q, log_sig_q), axis=1)
         dist = Normal(mu_q, log_sig_q)   # for the first approx. posterior
         z, _ = dist.sample()
         log_q_conv = dist.log_p(z)
@@ -387,6 +394,10 @@ class AutoEncoder(nn.Module):
         s = self.prior_ftr0.unsqueeze(0)
         batch_size = z.size(0)
         s = s.expand(batch_size, -1, -1, -1)
+        combiner_layers = []
+        normal_layers = []
+        vanilla_layer = []
+        post_process_layer = []
         for cell in self.dec_tower:
             if cell.cell_type == 'combiner_dec':
                 if idx_dec > 0:
@@ -417,15 +428,19 @@ class AutoEncoder(nn.Module):
 
                 # 'combiner_dec'
                 s = cell(s, z)
+                combiner_layers.append(s)
                 idx_dec += 1
             else:
                 s = cell(s)
+                normal_layers.append(s)
 
         if self.vanilla_vae:
             s = self.stem_decoder(z)
+            vanilla_layer.append(s)
 
         for cell in self.post_process:
             s = cell(s)
+            post_process_layer.append(s)
 
         logits = self.image_conditional(s)
 
@@ -443,6 +458,9 @@ class AutoEncoder(nn.Module):
             kl_all.append(torch.sum(kl_per_var, dim=[1, 2, 3]))
             log_q += torch.sum(log_q_conv, dim=[1, 2, 3])
             log_p += torch.sum(log_p_conv, dim=[1, 2, 3])
+
+        if(self.return_feature_layers):
+            return logits, log_q, log_p, kl_all, kl_diag, latent, pre_layers
 
         return logits, log_q, log_p, kl_all, kl_diag
 
@@ -486,7 +504,7 @@ class AutoEncoder(nn.Module):
         if self.dataset in {'mnist', 'omniglot'}:
             return Bernoulli(logits=logits)
         elif self.dataset in {'stacked_mnist', 'cifar10', 'celeba_64', 'celeba_256', 'imagenet_32', 'imagenet_64', 'ffhq',
-                              'lsun_bedroom_128', 'lsun_bedroom_256', 'lsun_church_64', 'lsun_church_128'}:
+                              'lsun_bedroom_128', 'lsun_bedroom_256', 'lsun_church_64', 'lsun_church_128', 'minecraft'}:
             if self.num_mix_output == 1:
                 return NormalDecoder(logits, num_bits=self.num_bits)
             else:

@@ -331,18 +331,21 @@ def cleanup():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('encoder decoder examiner')
+    #custom
+    parser.add_argument('--return_feature_layers', default=False)
+    parser.add_argument('--OS', choices=['windows', 'win', 'linux', 'ubuntu'], default='windows')
+    parser.add_argument('--batch_size_trainset', type=int, default=8)
+    parser.add_argument('--batch_size_testset', type=int, default=1)
     # experimental results
-    parser.add_argument('--root', type=str, default='/tmp/nasvae/expr',
+    parser.add_argument('--root', type=str, default='results',
                         help='location of the results')
-    parser.add_argument('--save', type=str, default='exp',
+    parser.add_argument('--save', type=str, default='minecraft',
                         help='id used for storing intermediate results')
     # data
-    parser.add_argument('--dataset', type=str, default='mnist',
-                        choices=['cifar10', 'mnist', 'omniglot', 'celeba_64', 'celeba_256',
-                                 'imagenet_32', 'ffhq', 'lsun_bedroom_128', 'stacked_mnist',
-                                 'lsun_church_128', 'lsun_church_64'],
+    parser.add_argument('--dataset', type=str, default='minecraft',
+                        choices=['minecraft'],
                         help='which dataset to use')
-    parser.add_argument('--data', type=str, default='/tmp/nasvae/data',
+    parser.add_argument('--data', type=str, default='datasets/minecraft_lmdb',
                         help='location of the data corpus')
     # optimization
     parser.add_argument('--batch_size', type=int, default=200,
@@ -439,25 +442,33 @@ if __name__ == '__main__':
 
     size = args.num_process_per_node
 
-    if size > 1:
-        args.distributed = True
-        processes = []
-        for rank in range(size):
-            args.local_rank = rank
-            global_rank = rank + args.node_rank * args.num_process_per_node
-            global_size = args.num_proc_node * args.num_process_per_node
-            args.global_rank = global_rank
-            print('Node rank %d, local proc %d, global proc %d' % (args.node_rank, rank, global_rank))
-            p = Process(target=init_processes, args=(global_rank, global_size, main, args))
-            p.start()
-            processes.append(p)
-
-        for p in processes:
-            p.join()
-    else:
+    if (args.OS == "windows" or args.OS == "win"):
         # for debugging
         print('starting in debug mode')
-        args.distributed = True
-        init_processes(0, size, main, args)
+        args.distributed = False
+        main(args)
+    else:
+        if size > 1:
+            args.distributed = True
+            processes = []
+            for rank in range(size):
+                args.local_rank = rank
+                global_rank = rank + args.node_rank * args.num_process_per_node
+                global_size = args.num_proc_node * args.num_process_per_node
+                args.global_rank = global_rank
+                print('Node rank %d, local proc %d, global proc %d' % (args.node_rank, rank, global_rank))
+                p = Process(target=init_processes, args=(global_rank, global_size, main, args))
+                p.start()
+                processes.append(p)
+
+            for p in processes:
+                p.join()
+        else:
+            # for debugging
+            print('starting in debug mode')
+            args.distributed = True
+            init_processes(0, size, main, args)
+
+
 
 
