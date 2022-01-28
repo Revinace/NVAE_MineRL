@@ -18,17 +18,14 @@ import sys
 
 from PIL import Image
 
-MINECRAFT_ENVIRONMENT = "MineRLTreechop-v0"
-
-# YOU ONLY NEED TO DO THIS ONCE!
-os.makedirs("data", exist_ok=True)
-data_root = os.getenv('MINERL_DATA_ROOT', 'data/')
-if MINECRAFT_ENVIRONMENT not in os.listdir(data_root):
-    print(f"Downloading {MINECRAFT_ENVIRONMENT}")
-    minerl.data.download(directory=data_root, environment=MINECRAFT_ENVIRONMENT)
-
-
 def main(custom_lmdb_path):
+    # THE DATASET ONLY GETS DOWNLOADED ONCE
+    MINECRAFT_ENVIRONMENT = args.enviourment
+    os.makedirs("data", exist_ok=True)
+    data_root = os.getenv('MINERL_DATA_ROOT', 'data/')
+    if MINECRAFT_ENVIRONMENT not in os.listdir(data_root):
+        print(f"Downloading {MINECRAFT_ENVIRONMENT}")
+        minerl.data.download(directory=data_root, environment=MINECRAFT_ENVIRONMENT)
 
     # create target directory
     if not os.path.exists(custom_lmdb_path):
@@ -41,7 +38,7 @@ def main(custom_lmdb_path):
     iterator = BufferedBatchIter(data)
     for idx, order in enumerate([args.train_order, args.test_order]):
         count = 0
-        if idx==0:
+        if(idx==0):
             env = lmdb.open(lmdb_path_train, map_size=1e10)
             max_size = args.train_size
             output_string = "train"
@@ -82,10 +79,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Custom Training Set')
     parser.add_argument('--custom_lmdb_path', type=str, default='datasets/minecraft_lmdb',
                         help='target location for storing lmdb files')
-    parser.add_argument('--train_size', type=int, default=200)
-    parser.add_argument('--test_size', type=int, default=200)
+    parser.add_argument('--train_size', type=int, default=15000)
+    parser.add_argument('--test_size', type=int, default=5000)
     parser.add_argument('--train_order', type=str, default="random", choices={"random", "sequential"})
     parser.add_argument('--test_order', type=str, default="random", choices={"random", "sequential"})
+    parser.add_argument('--enviourment', type=str, default="MineRLTreechop-v0")
     args = parser.parse_args()
 
     main(args.custom_lmdb_path)

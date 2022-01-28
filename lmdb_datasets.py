@@ -15,7 +15,7 @@ from PIL import Image
 
 def num_samples(dataset, train):
     if dataset == 'minecraft':
-        return 200 if train else 200
+        return 15000 if train else 5000
     else:
         raise NotImplementedError('dataset %s is unknown' % dataset)
 

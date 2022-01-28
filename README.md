@@ -5,12 +5,19 @@
   <a href="http://jankautz.com/" target="_blank">Jan&nbsp;Kautz</a> 
 </div>
 
+##Disclaimer
+Currently I only have evidence, that the creation of the dataset and the training is working on Linux because windows have some disadvantages.
+When you only want to work with the pre_trained files windows should work when the `args.distribution` is `False` and `num_workers` in `datasets` is 0,
+which is automatically the case if `args.OS` is `windows`.
+
+---
+
 ## Requirements
 NVAE is built in Python 3.7 using PyTorch 1.6.0. Use the following command to install the requirements:
 ```
 pip install -r requirements.txt
 ``` 
-IIf you have problems to install minerl try
+If you have problems to install `MineRL` try the following
 ```
 sudo add-apt-repository -y ppa:openjdk-r/ppa
 sudo apt-get purge openjdk-*
@@ -19,14 +26,21 @@ sudo apt-get install xvfb xserver-xephyr vnc4server python-opengl ffmpeg
 pip3 install --upgrade minerl
 ```
 
-## Folders
+---
+
+## Structure
 The folder for the [MineRL](https://minerl.readthedocs.io/en/latest/) enviourments is `data/`
 
 The LMDB Datasets are stored in `datasets/minecraft_lmdb` and the pretrained model in `results/eval-minecraft/checkpoint.pt`
 
 The model and pretrained weights for the [Critic Guided Segmentation](https://arxiv.org/abs/2107.09540) are saved in the folder `critic_guided_segmentation/`
 
+The argument `--OS` was introduced because windows seems to have problems with multiprocessing and the pytorch distribution library.
+Here the main difference is that `args.distribution` is `False` and the `num_workers` in `datasets.py` are 0.
 
+The notebook `NVAE_Dataset_Train_Sample.ipynb` or `dataset_train_script.py` can be used to create a dataset, train it and sample a few images.
+
+---
 
 <details><summary>Create Dataset and train the NVAE</summary>
 
@@ -37,11 +51,13 @@ Run the following commands to generate the Minecraft images and store them in an
 python scripts/create_custom_lmdb_from_minerl.py --lmdb_path datasets/minecraft_lmdb --train_size 15000 --test_size 5000
 ```
 The LMDB datasets are created at `datasets/minecraft`.
-**Important info for Windows user**: the dataset is only on Linux able to shrink after processing, so for windows the mapsize of 10GB will be used.
+**Important info for Windows user**: the dataset is only on Linux able to shrink after processing, so for windows the `mapsize` in this case 10GB will be used.
 
 
 ## Running the training of NVAE for Minecraft
 Before the training can start the `train_size` and `test_size` need to be adjusted in `lmdb_datasets.py`
+Currently only the default parameters from the NVAE where used to train the network.
+Maybe it's helpfull to use one of the [settings](https://github.com/NVlabs/NVAE#running-the-main-nvae-training-and-evaluation-scripts) used for the face datasets.
 
 ```shell script
 python train.py --data datasets/minecraft_lmdb --root results --save minecraft --dataset minecraft
