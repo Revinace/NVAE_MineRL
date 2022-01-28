@@ -16,7 +16,7 @@ import torch.distributed as dist
 from torch.multiprocessing import Process
 from torch.cuda.amp import GradScaler
 
-from model_2 import AutoEncoder
+from model import AutoEncoder
 from thirdparty.adamax import Adamax
 import utils
 import datasets
