@@ -1,4 +1,4 @@
-# The Official PyTorch Implementation of "NVAE: A Deep Hierarchical Variational Autoencoder" [(NeurIPS 2020 Spotlight Paper)](https://arxiv.org/abs/2007.03898)
+# A modified PyTorch Implementation of "NVAE: A Deep Hierarchical Variational Autoencoder" to be used in combination with [MineRL](https://minerl.io/) [(NeurIPS 2020 Spotlight Paper)](https://arxiv.org/abs/2007.03898)
 
 <div align="center">
   <a href="http://latentspace.cc/arash_vahdat/" target="_blank">Arash&nbsp;Vahdat</a> &emsp; <b>&middot;</b> &emsp;
