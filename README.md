@@ -5,7 +5,7 @@
   <a href="http://jankautz.com/" target="_blank">Jan&nbsp;Kautz</a> 
 </div>
 
-##Disclaimer
+## Disclaimer
 Currently I only have evidence, that the creation of the dataset and the training is working on Linux because windows have some disadvantages.
 When you only want to work with the pre_trained files windows should work when the `args.distribution` is `False` and `num_workers` in `datasets` is 0,
 which is automatically the case if `args.OS` is `windows`.
