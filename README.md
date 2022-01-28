@@ -18,6 +18,7 @@ which is automatically the case if `args.OS` is `windows`.
 NVAE is built in Python 3.7 using PyTorch 1.6.0. Use the following command to install the requirements:
 ```
 pip install -r requirements.txt
+pip install minerl
 ``` 
 If you have problems to install `MineRL` try the following
 ```
