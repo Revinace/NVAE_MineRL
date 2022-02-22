@@ -392,17 +392,15 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size_trainset', type=int, default=8)
     parser.add_argument('--batch_size_testset', type=int, default=1)
     # experimental results
-    parser.add_argument('--root', type=str, default='/tmp/nasvae/expr',
+    parser.add_argument('--root', type=str, default='results',
                         help='location of the results')
-    parser.add_argument('--save', type=str, default='exp',
+    parser.add_argument('--save', type=str, default='minecraft',
                         help='id used for storing intermediate results')
     # data
-    parser.add_argument('--dataset', type=str, default='mnist',
-                        choices=['cifar10', 'mnist', 'omniglot', 'celeba_64', 'celeba_256',
-                                 'imagenet_32', 'ffhq', 'lsun_bedroom_128', 'stacked_mnist',
-                                 'lsun_church_128', 'lsun_church_64', 'minecraft'],
+    parser.add_argument('--dataset', type=str, default='minecraft',
+                        choices=['minecraft'],
                         help='which dataset to use')
-    parser.add_argument('--data', type=str, default='/tmp/nasvae/data',
+    parser.add_argument('--data', type=str, default='datasets/minecraft_lmdb',
                         help='location of the data corpus')
     # optimization
     parser.add_argument('--batch_size', type=int, default=1,
